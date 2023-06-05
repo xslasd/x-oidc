@@ -1,4 +1,4 @@
-package handler
+package httpwrapper
 
 import (
 	"embed"
@@ -13,7 +13,7 @@ var (
 	templates  = template.Must(template.ParseFS(templateFS, "templates/*.html"))
 )
 
-func (h *HttpHandler) login() {
+func (h *HttpWrapper) login() {
 	h.handler.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -22,8 +22,7 @@ func (h *HttpHandler) login() {
 		}
 		if r.Method == "GET" {
 			templates.ExecuteTemplate(w, "login", map[string]string{
-				"ID":    r.Form.Get("request_id"),
-				"Error": "",
+				"ID": r.Form.Get("request_id"),
 			})
 		}
 	})

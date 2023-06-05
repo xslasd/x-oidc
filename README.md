@@ -21,12 +21,14 @@ op.go   definition and implementation of an OIDC OpenID Provider (server)
 
 ## Third-party Library
 The library primarily depends on the third-party library "go-jose/v3".   
-The HTTP processing section uses an interface-based approach (with net/http being the default), which can be extended as needed.  
+The HTTP processing section uses an interface-based approach , which can be extended as needed.   
+When starting OP, implement Config.OpenIDWrapper. By default, github. com/xslass/x-oidc/example/server/httpwrapper can be used. Implementation based on net/HTTP. 
 ```
 	github.com/go-jose/go-jose/v3 v3.0.0
 	github.com/google/uuid v1.3.0
 	golang.org/x/text v0.9.0
 ```
+Special thanks to [zitadel/oidc](https://github.com/zitadel/oidc). This project referred to the redesign and implementation of interface functions for zitadel/oidc.
 ## Contributors
 
 <a href="https://github.com/xslasd/x-oidc/graphs/contributors">

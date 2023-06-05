@@ -53,6 +53,7 @@ var (
 	UnauthorizedClientGrantType = New(1031, UnsupportedGrantTypeErrorType, "The grantType '%s' unsupported", "")
 	AuthReqNotDone              = New(1032, InvalidRequestErrorType, "Unfortunately, the user may be not logged in and/or additional interaction is required.", "")
 
-	PublicKeyInvalid  = New(1050, ServerErrorErrorType, "failed to decode PEM block containing public key", "")
-	PrivateKeyInvalid = New(1051, ServerErrorErrorType, "failed to decode PEM block containing private key", "")
+	PublicKeyInvalid     = New(1050, ServerErrorErrorType, "failed to decode PEM block containing public key", "")
+	PrivateKeyInvalid    = New(1051, ServerErrorErrorType, "failed to decode PEM block containing private key", "")
+	AlgorithmUnsupported = New(1052, ServerErrorErrorType, "unsupported jose signing algorithm: %s", "")
 )

@@ -24,17 +24,3 @@ func ValidateIssuer(issuer string) error {
 func IsHttpsPrefix(issuer string) bool {
 	return strings.HasPrefix(issuer, constant.HttpsPrefix)
 }
-
-func GetQueryString(queryMap map[string]string) string {
-	if queryMap == nil || len(queryMap) == 0 {
-		return ""
-	}
-	queryValue := url.Values{}
-	for key, value := range queryMap {
-		if value == "" {
-			continue
-		}
-		queryValue.Add(key, value)
-	}
-	return queryValue.Encode()
-}

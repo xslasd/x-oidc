@@ -8,7 +8,6 @@ import (
 	"github.com/go-jose/go-jose/v3"
 	"github.com/go-jose/go-jose/v3/jwt"
 	"github.com/xslasd/x-oidc/constant"
-	"github.com/xslasd/x-oidc/crypto"
 	"github.com/xslasd/x-oidc/ecode"
 	"github.com/xslasd/x-oidc/model"
 	"github.com/xslasd/x-oidc/util"
@@ -66,7 +65,7 @@ func (o OIDCClient) GenerateCodeChallenge(CodeChallengeMethod string) string {
 		return util.RandomString(43)
 	case constant.CodeChallengeMethodS256:
 		codeChallenge := util.RandomString(43)
-		return crypto.HashString(sha256.New(), codeChallenge, false)
+		return util.HashString(sha256.New(), codeChallenge, false)
 	}
 	return ""
 }

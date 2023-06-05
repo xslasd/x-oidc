@@ -79,7 +79,7 @@ func (t *TokenClaims) CheckAuthorizationContextClassReference(acr string) error 
 type JWTClientTokenClaims struct {
 	Issuer    string   `json:"iss"`
 	Subject   string   `json:"sub"`
-	Audience  []string `json:"aud"` //todo array or string
+	Audience  Audience `json:"aud"`
 	IssuedAt  int64    `json:"iat"`
 	ExpiresAt int64    `json:"exp"`
 

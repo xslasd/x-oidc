@@ -17,7 +17,7 @@ type OpenIDProvider struct {
 	opt *OpenIDOption
 }
 
-type OpenIDHandler interface {
+type OpenIDWrapper interface {
 	SetLogger(logger log.Logger)
 
 	DiscoveryJWKs(jwksEndpoint string, handler func() (*jose.JSONWebKeySet, error))
@@ -38,7 +38,7 @@ func NewOpenIDProvider(cfg *Config, opts ...Option) (*OpenIDProvider, error) {
 	if err != nil {
 		return nil, err
 	}
-	if cfg.Handler == nil {
+	if cfg.OpenIDWrapper == nil {
 		return nil, ecode.HandlerIsNull
 	}
 	if cfg.Storage == nil {
@@ -52,10 +52,10 @@ func NewOpenIDProvider(cfg *Config, opts ...Option) (*OpenIDProvider, error) {
 	if !opt.allowInsecure && !util.IsHttpsPrefix(cfg.Issuer) {
 		return nil, ecode.IssuerHTTPSInvalid
 	}
-	handler := srv.cfg.Handler
+	handler := srv.cfg.OpenIDWrapper
 	srv.printBanner()
 	cfg.Storage.SetLogger(opt.logger)
-	cfg.Handler.SetLogger(opt.logger)
+	cfg.OpenIDWrapper.SetLogger(opt.logger)
 	handler.DiscoveryJWKs(opt.jwksPath, srv.discoveryJWKs)
 	opt.logger.Infof("JWKsEndpoint -> %s", opt.jwksEndpoint)
 	handler.DiscoveryConfig(opt.discoveryPath, srv.discoveryConfig)

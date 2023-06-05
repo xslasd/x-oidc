@@ -1,9 +1,12 @@
-package crypto
+package util
 
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/sha512"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
@@ -11,6 +14,7 @@ import (
 	"github.com/go-jose/go-jose/v3/jwt"
 	"github.com/google/uuid"
 	"github.com/xslasd/x-oidc/ecode"
+	"hash"
 	"os"
 )
 
@@ -132,7 +136,6 @@ func (j JoseRSAJWT) ParseJWT(token string, payload interface{}) error {
 //}
 //
 //func (j JoseHMACJWT) GenerateJWT(claims interface{}) (string, error) {
-//	// 创建一个 JWT 签名者
 //	signer, err := jose.NewSigner(jose.SigningKey{Algorithm: jose.HS256, Key: j.signingKey}, nil)
 //	if err != nil {
 //		fmt.Println("Error creating signer:", err)
@@ -161,19 +164,26 @@ func (j JoseRSAJWT) ParseJWT(token string, payload interface{}) error {
 //	err = json.Unmarshal(b, payload)
 //	return err
 //}
-//
-//func Sign(object interface{}, signingKey jose.SigningKey) (string, error) {
-//	signer, err := jose.NewSigner(signingKey, &jose.SignerOptions{})
-//	if err != nil {
-//		return "", err
-//	}
-//	payload, err := json.Marshal(object)
-//	if err != nil {
-//		return "", err
-//	}
-//	result, err := signer.Sign(payload)
-//	if err != nil {
-//		return "", err
-//	}
-//	return result.CompactSerialize()
-//}
+
+func GetHashAlgorithm(sigAlgorithm jose.SignatureAlgorithm) (hash.Hash, error) {
+	switch sigAlgorithm {
+	case jose.RS256, jose.ES256, jose.PS256, jose.HS256:
+		return sha256.New(), nil
+	case jose.RS384, jose.ES384, jose.PS384, jose.HS384:
+		return sha512.New384(), nil
+	case jose.RS512, jose.ES512, jose.PS512, jose.HS512:
+		return sha512.New(), nil
+	default:
+		return nil, ecode.AlgorithmUnsupported.SetDescriptionf(string(sigAlgorithm))
+	}
+}
+
+func HashString(hash hash.Hash, s string, firstHalf bool) string {
+	hash.Write([]byte(s))
+	size := hash.Size()
+	if firstHalf {
+		size = size / 2
+	}
+	sum := hash.Sum(nil)[:size]
+	return base64.RawURLEncoding.EncodeToString(sum)
+}

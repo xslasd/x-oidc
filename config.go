@@ -1,13 +1,13 @@
 package oidc
 
 import (
-	"github.com/xslasd/x-oidc/crypto"
 	"github.com/xslasd/x-oidc/storage"
+	"github.com/xslasd/x-oidc/util"
 )
 
 type Config struct {
-	Issuer  string
-	Crypto  crypto.JWTCertifier
-	Handler OpenIDHandler
-	Storage storage.IStorage
+	Issuer        string
+	Crypto        util.JWTCertifier
+	OpenIDWrapper OpenIDWrapper
+	Storage       storage.IStorage
 }

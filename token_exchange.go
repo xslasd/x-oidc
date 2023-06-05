@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"github.com/go-jose/go-jose/v3"
 	"github.com/xslasd/x-oidc/constant"
-	"github.com/xslasd/x-oidc/crypto"
 	"github.com/xslasd/x-oidc/ecode"
 	"github.com/xslasd/x-oidc/storage"
+	"github.com/xslasd/x-oidc/util"
 	"net/http"
 	"net/url"
 	"strings"
@@ -136,8 +136,7 @@ func authorizeCodeChallenge(req *TokenExchangeReq, authReq *storage.AuthRequest)
 	}
 	switch authReq.CodeChallengeMethod {
 	case constant.CodeChallengeMethodS256:
-		req.CodeVerifier = crypto.HashString(sha256.New(), req.CodeVerifier, false)
-	default:
+		req.CodeVerifier = util.HashString(sha256.New(), req.CodeVerifier, false)
 	}
 	if req.CodeVerifier != authReq.CodeChallenge {
 		fmt.Println("debug: CodeChallengeInvalid")

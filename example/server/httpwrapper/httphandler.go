@@ -1,4 +1,4 @@
-package handler
+package httpwrapper
 
 import (
 	"context"
@@ -15,20 +15,20 @@ import (
 	"time"
 )
 
-type HttpHandler struct {
+type HttpWrapper struct {
 	handler *http.ServeMux
 	addr    string
 	logger  log.Logger
 }
 
-func NewHttpHandler(addr string) *HttpHandler {
-	return &HttpHandler{handler: http.DefaultServeMux, addr: addr}
+func NewHttpHandler(addr string) *HttpWrapper {
+	return &HttpWrapper{handler: http.DefaultServeMux, addr: addr}
 }
-func (h *HttpHandler) SetLogger(logger log.Logger) {
+func (h *HttpWrapper) SetLogger(logger log.Logger) {
 	h.logger = logger
 }
 
-func (h *HttpHandler) ListenAndServe() error {
+func (h *HttpWrapper) ListenAndServe() error {
 	h.login()
 	var err error
 	srv := &http.Server{
@@ -60,7 +60,7 @@ func (h *HttpHandler) ListenAndServe() error {
 	}
 }
 
-func (h *HttpHandler) DiscoveryJWKs(jwksEndpoint string, handler func() (*jose.JSONWebKeySet, error)) {
+func (h *HttpWrapper) DiscoveryJWKs(jwksEndpoint string, handler func() (*jose.JSONWebKeySet, error)) {
 	h.handler.HandleFunc(jwksEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		data, err := handler()
 		if err != nil {
@@ -74,7 +74,7 @@ func (h *HttpHandler) DiscoveryJWKs(jwksEndpoint string, handler func() (*jose.J
 	})
 }
 
-func (h *HttpHandler) DiscoveryConfig(discoveryEndpoint string, handler func(req *x_oidc.DiscoveryConfigReq) *model.DiscoveryConfiguration) {
+func (h *HttpWrapper) DiscoveryConfig(discoveryEndpoint string, handler func(req *x_oidc.DiscoveryConfigReq) *model.DiscoveryConfiguration) {
 	h.handler.HandleFunc(discoveryEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		data := handler(&x_oidc.DiscoveryConfigReq{
 			RegistrationEndpoint:         "",
@@ -88,7 +88,7 @@ func (h *HttpHandler) DiscoveryConfig(discoveryEndpoint string, handler func(req
 	})
 }
 
-func (h *HttpHandler) Authorize(authorizationEndpoint string, handler func(ctx context.Context, req *x_oidc.AuthRequestReq) (string, error)) {
+func (h *HttpWrapper) Authorize(authorizationEndpoint string, handler func(ctx context.Context, req *x_oidc.AuthRequestReq) (string, error)) {
 	h.handler.HandleFunc(authorizationEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		var authRequestReq x_oidc.AuthRequestReq
 		if r.Method == "GET" {
@@ -136,7 +136,7 @@ func (h *HttpHandler) Authorize(authorizationEndpoint string, handler func(ctx c
 	})
 }
 
-func (h *HttpHandler) EndSession(endSessionEndpoint string, handler func(ctx context.Context, req *x_oidc.EndSessionReq) (string, error)) {
+func (h *HttpWrapper) EndSession(endSessionEndpoint string, handler func(ctx context.Context, req *x_oidc.EndSessionReq) (string, error)) {
 	h.handler.HandleFunc(endSessionEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		var endSessionReq x_oidc.EndSessionReq
 		r.ParseForm()
@@ -168,7 +168,7 @@ func (h *HttpHandler) EndSession(endSessionEndpoint string, handler func(ctx con
 	})
 }
 
-func (h *HttpHandler) Introspect(introspectionEndpoint string, handler func(ctx context.Context, req *x_oidc.IntrospectionReq, r *http.Request) (*model.IntrospectionModel, error)) {
+func (h *HttpWrapper) Introspect(introspectionEndpoint string, handler func(ctx context.Context, req *x_oidc.IntrospectionReq, r *http.Request) (*model.IntrospectionModel, error)) {
 	h.handler.HandleFunc(introspectionEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		var introspectionReq x_oidc.IntrospectionReq
 		r.ParseForm()
@@ -207,7 +207,7 @@ func (h *HttpHandler) Introspect(introspectionEndpoint string, handler func(ctx 
 	})
 }
 
-func (h *HttpHandler) RevokeToken(revocationEndpoint string, handler func(ctx context.Context, req *x_oidc.RevokeTokenReq, r *http.Request) error) {
+func (h *HttpWrapper) RevokeToken(revocationEndpoint string, handler func(ctx context.Context, req *x_oidc.RevokeTokenReq, r *http.Request) error) {
 	h.handler.HandleFunc(revocationEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		var revokeTokenReq x_oidc.RevokeTokenReq
 		r.ParseForm()
@@ -246,7 +246,7 @@ func (h *HttpHandler) RevokeToken(revocationEndpoint string, handler func(ctx co
 	})
 }
 
-func (h *HttpHandler) TokenExchange(tokenExchangeEndpoint string, handler func(ctx context.Context, req *x_oidc.TokenExchangeReq, r *http.Request) (interface{}, error)) {
+func (h *HttpWrapper) TokenExchange(tokenExchangeEndpoint string, handler func(ctx context.Context, req *x_oidc.TokenExchangeReq, r *http.Request) (interface{}, error)) {
 	h.handler.HandleFunc(tokenExchangeEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		var tokenExchangeReq x_oidc.TokenExchangeReq
 		r.ParseForm()
@@ -315,7 +315,7 @@ func (h *HttpHandler) TokenExchange(tokenExchangeEndpoint string, handler func(c
 	})
 }
 
-func (h *HttpHandler) Userinfo(userinfoEndpoint string, handler func(ctx context.Context, req *x_oidc.UserinfoReq, r *http.Request) (*model.UserInfo, error)) {
+func (h *HttpWrapper) Userinfo(userinfoEndpoint string, handler func(ctx context.Context, req *x_oidc.UserinfoReq, r *http.Request) (*model.UserInfo, error)) {
 	h.handler.HandleFunc(userinfoEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		var userinfoReq x_oidc.UserinfoReq
 		r.ParseForm()
@@ -340,7 +340,7 @@ func (h *HttpHandler) Userinfo(userinfoEndpoint string, handler func(ctx context
 	})
 }
 
-func (h *HttpHandler) AuthorizeCallback(authorizeCallbackEndpoint string, handler func(ctx context.Context, req *x_oidc.AuthorizeCallbackReq) (callbackUrl string, err error)) {
+func (h *HttpWrapper) AuthorizeCallback(authorizeCallbackEndpoint string, handler func(ctx context.Context, req *x_oidc.AuthorizeCallbackReq) (callbackUrl string, err error)) {
 	h.handler.HandleFunc(authorizeCallbackEndpoint, func(w http.ResponseWriter, r *http.Request) {
 
 		var authorizeCallbackReq x_oidc.AuthorizeCallbackReq
