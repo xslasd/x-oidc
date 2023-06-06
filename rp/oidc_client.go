@@ -48,7 +48,7 @@ func NewOIDCClient(cfg *Config, opts ...Option) (IOIDCClient, error) {
 
 	cli := &OIDCClient{opt: opt, cfg: cfg}
 
-	discoveryConfig, err := cli.Discover()
+	discoveryConfig, err := cli.discover()
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +59,13 @@ func NewOIDCClient(cfg *Config, opts ...Option) (IOIDCClient, error) {
 	}
 	return cli, nil
 }
+func (o OIDCClient) JWKs() *jose.JSONWebKeySet {
+	return o.jwks
+}
+func (o OIDCClient) DiscoveryConfiguration() *model.DiscoveryConfiguration {
+	return o.discoveryConfig
+}
+
 func (o OIDCClient) GenerateCodeChallenge(CodeChallengeMethod string) string {
 	switch CodeChallengeMethod {
 	case constant.CodeChallengeMethodPlain:
@@ -304,7 +311,7 @@ func (o OIDCClient) SendHttpRequest(url string, method string, header map[string
 	respBody, err := io.ReadAll(res.Body)
 	return respBody, err
 }
-func (o OIDCClient) Discover() (*model.DiscoveryConfiguration, error) {
+func (o OIDCClient) discover() (*model.DiscoveryConfiguration, error) {
 	wellKnown := strings.TrimSuffix(o.cfg.Issuer, "/") + constant.DiscoveryEndpoint
 	res, err := o.SendHttpRequest(wellKnown, constant.HttpMethodGet, nil, nil)
 	if err != nil {

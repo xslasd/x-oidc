@@ -1,6 +1,9 @@
 package rp
 
-import "github.com/xslasd/x-oidc/model"
+import (
+	"github.com/go-jose/go-jose/v3"
+	"github.com/xslasd/x-oidc/model"
+)
 
 type Config struct {
 	ClientID     string
@@ -60,4 +63,7 @@ type IOIDCClient interface {
 	IntrospectToken(req *IntrospectionReq) (*model.IntrospectionModel, error)
 	RevokeToken(req *RevokeTokenReq) (bool, error)
 	ValidateIDToken(idToken string) (*model.IDTokenClaims, error)
+	DiscoveryConfiguration() *model.DiscoveryConfiguration
+	JWKs() *jose.JSONWebKeySet
+	SendHttpRequest(url string, method string, header map[string]string, body map[string]string) ([]byte, error)
 }
